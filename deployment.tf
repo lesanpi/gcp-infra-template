@@ -17,13 +17,15 @@ resource "google_compute_instance_template" "my-instance-template" {
     boot         = true
   }
 
+
+
   # Habilitar contenedores
   metadata = {
     gce-container-declaration = <<-EOT
       spec:
         containers:
           - name: nginx
-            image: us-central1-docker.pkg.dev/p2pets/my-repo/nginx-web:latest
+            image: us-central1-docker.pkg.dev/p2pets/my-repo/my-image:latest
             stdin: false
             tty: false
         restartPolicy: Always

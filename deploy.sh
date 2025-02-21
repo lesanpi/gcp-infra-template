@@ -14,5 +14,5 @@ echo "$INSTANCES" | while read -r NAME ZONE; do
   echo "Desplegando en la instancia: $NAME (zona: $ZONE)"
   gcloud compute instances update-container $NAME \
     --zone=$ZONE \
-    --container-image=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/nginx-web:latest
+    --container-image=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/my-image:latest
 done
