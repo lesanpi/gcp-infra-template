@@ -17,6 +17,24 @@ resource "google_compute_instance_template" "my-instance-template" {
     boot         = true
   }
 
+  # Habilitar contenedores
+  metadata = {
+    gce-container-declaration = <<-EOT
+      spec:
+        containers:
+          - name: nginx
+            image: us-central1-docker.pkg.dev/p2pets/my-repo/nginx-web:latest
+            stdin: false
+            tty: false
+        restartPolicy: Always
+    EOT
+  }
+
+  # Asegúrate de que el servicio de contenedores esté instalado
+  service_account {
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
 
   network_interface {
     network = "default"
@@ -160,79 +178,79 @@ resource "google_compute_resource_policy" "instance-schedule" {
 ### PIPELINE
 
 
-# 1. Conectar el repositorio de GitHub a Cloud Source Repositories
-resource "google_sourcerepo_repository" "motivapp-repo" {
-  name = "motivapp-repo"
-}
+# # 1. Conectar el repositorio de GitHub a Cloud Source Repositories
+# resource "google_sourcerepo_repository" "motivapp-repo" {
+#   name = "motivapp-repo"
+# }
 
-# 2. Configurar el trigger de Cloud Build
-resource "google_cloudbuild_trigger" "motivapp-trigger" {
-  name        = "motivapp-trigger"
-  description = "Trigger para la rama development"
+# # 2. Configurar el trigger de Cloud Build
+# resource "google_cloudbuild_trigger" "motivapp-trigger" {
+#   name        = "motivapp-trigger"
+#   description = "Trigger para la rama development"
 
-  trigger_template {
-    branch_name = "development"
-    repo_name   = google_sourcerepo_repository.motivapp-repo.name
-  }
+#   trigger_template {
+#     branch_name = "development"
+#     repo_name   = google_sourcerepo_repository.motivapp-repo.name
+#   }
 
-  build {
-    step {
-      name = "gcr.io/cloud-builders/npm"
-      args = ["install"]
-    }
+#   build {
+#     step {
+#       name = "gcr.io/cloud-builders/npm"
+#       args = ["install"]
+#     }
 
-    step {
-      name = "gcr.io/cloud-builders/npm"
-      args = ["run", "build"]
-    }
+#     step {
+#       name = "gcr.io/cloud-builders/npm"
+#       args = ["run", "build"]
+#     }
 
-    artifacts {
-      images = []
-      objects {
-        location = "gs://${google_storage_bucket.build-artifacts.name}/build"
-        paths    = ["app/.next"]
-      }
-    }
-  }
-}
+#     artifacts {
+#       images = []
+#       objects {
+#         location = "gs://${google_storage_bucket.build-artifacts.name}/build"
+#         paths    = ["app/.next"]
+#       }
+#     }
+#   }
+# }
 
-# 3. Bucket para almacenar los artefactos de construcción
-resource "google_storage_bucket" "build-artifacts" {
-  name     = "motivapp-build-artifacts"
-  location = "us-central1"
-}
+# # 3. Bucket para almacenar los artefactos de construcción
+# resource "google_storage_bucket" "build-artifacts" {
+#   name     = "motivapp-build-artifacts"
+#   location = "us-central1"
+# }
 
-# 4. Configurar Cloud Deploy para el despliegue en VMs
-resource "google_clouddeploy_delivery_pipeline" "motivapp-pipeline" {
-  name        = "motivapp-pipeline"
-  description = "Pipeline de despliegue para la aplicación Next.js"
-  location    = "us-central1"
+# # 4. Configurar Cloud Deploy para el despliegue en VMs
+# resource "google_clouddeploy_delivery_pipeline" "motivapp-pipeline" {
+#   name        = "motivapp-pipeline"
+#   description = "Pipeline de despliegue para la aplicación Next.js"
+#   location    = "us-central1"
 
-  serial_pipeline {
-    stages {
-      target_id = "development-vms"
-    }
-  }
-}
+#   serial_pipeline {
+#     stages {
+#       target_id = "development-vms"
+#     }
+#   }
+# }
 
-resource "google_clouddeploy_target" "development-vms" {
-  name        = "development-vms"
-  description = "Despliegue en VMs de desarrollo"
-  location    = "us-central1"
+# resource "google_clouddeploy_target" "development-vms" {
+#   name        = "development-vms"
+#   description = "Despliegue en VMs de desarrollo"
+#   location    = "us-central1"
 
-  custom_target {
-    custom_target_type = "vm-deployer"
-  }
-}
+#   custom_target {
+#     custom_target_type = "vm-deployer"
+#   }
+# }
 
-# 6. Permisos IAM para Cloud Build y Cloud Deploy
-resource "google_project_iam_member" "cloudbuild-deployer" {
-  project = "p2pets"
-  role    = "roles/clouddeploy.developer"
-  member  = "serviceAccount:${google_service_account.cloudbuild.email}"
-}
+# # 6. Permisos IAM para Cloud Build y Cloud Deploy
+# resource "google_project_iam_member" "cloudbuild-deployer" {
+#   project = "p2pets"
+#   role    = "roles/clouddeploy.developer"
+#   member  = "serviceAccount:${google_service_account.cloudbuild.email}"
+# }
 
-resource "google_service_account" "cloudbuild" {
-  account_id   = "cloudbuild-sa"
-  display_name = "Cloud Build Service Account"
-}
+# resource "google_service_account" "cloudbuild" {
+#   account_id   = "cloudbuild-sa"
+#   display_name = "Cloud Build Service Account"
+# }
