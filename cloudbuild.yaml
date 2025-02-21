@@ -17,23 +17,23 @@ steps:
     id: 'Push Docker Image'
 
   # Paso 3: Obtener las instancias de GCE con las etiquetas "development" y "web"
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        # Obtener la lista de instancias con las etiquetas "development" y "web"
-        INSTANCES=$(gcloud compute instances list --filter="tags.items=development AND tags.items=web" --format="value(name,zone)")
+  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  #   entrypoint: 'bash'
+  #   args:
+  #     - '-c'
+  #     - |
+  #       # Obtener la lista de instancias con las etiquetas "development" y "web"
+  #       INSTANCES=$(gcloud compute instances list --filter="tags.items=development AND tags.items=web" --format="value(name,zone)")
 
-        # Iterar sobre las instancias y desplegar la imagen
-        echo "$INSTANCES" | while read -r NAME ZONE; do
-          echo "Desplegando en la instancia: $NAME (zona: $ZONE)"
-          gcloud compute instances update-container $NAME \
-            --zone=$ZONE \
-            --container-image=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/my-image:latest
-        done
-    id: 'Deploy to GCE'
-    waitFor: ['Push Docker Image']
+  #       # Iterar sobre las instancias y desplegar la imagen
+  #       echo "$INSTANCES" | while read -r NAME ZONE; do
+  #         echo "Desplegando en la instancia: $NAME (zona: $ZONE)"
+  #         gcloud compute instances update-container $NAME \
+  #           --zone=$ZONE \
+  #           --container-image=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/my-image:latest
+  #       done
+  #   id: 'Deploy to GCE'
+  #   waitFor: ['Push Docker Image']
 
 # Opcional: Configuración de tiempo de espera y opciones de construcción
 timeout: '1200s'
