@@ -28,6 +28,9 @@ resource "google_compute_instance_template" "my-instance-template" {
             image: us-central1-docker.pkg.dev/p2pets/my-repo/my-image:latest
             stdin: false
             tty: false
+            ports:
+              - containerPort: 80
+              - containerPort: 443
         restartPolicy: Always
     EOT
   }

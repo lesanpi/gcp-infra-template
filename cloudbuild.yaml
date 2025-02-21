@@ -16,13 +16,27 @@ steps:
       ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/my-image:latest']
     id: 'Push Docker Image'
 
-  # Paso 3: Ejecutar el script de despliegue
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
+  # Step 3: Deployment to Cloud Run after image is pushed
+  - name: 'gcr.io/cloud-builders/gcloud'
     args:
-      - 'deploy.sh'
-    id: 'Deploy to GCE'
-    waitFor: ['Push Docker Image']
+      - 'run'
+      - 'deploy'
+      - 'my-service' # Replace with your service name
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/my-image:latest'
+      - '--region'
+      - 'us-central1' # You can change this if you want to deploy to a different region
+      - '--platform'
+      - 'managed'
+      # Optional: if you want to allow unauthenticated access
+      - '--allow-unauthenticated'
+  # # Paso 3: Ejecutar el script de despliegue
+  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  #   entrypoint: 'bash'
+  #   args:
+  #     - 'deploy.sh'
+  #   id: 'Deploy to GCE'
+  #   waitFor: ['Push Docker Image']
 
 # Opcional: Configuración de tiempo de espera y opciones de construcción
 timeout: '1200s'
