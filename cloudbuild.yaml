@@ -28,15 +28,8 @@ steps:
       - 'us-central1' # You can change this if you want to deploy to a different region
       - '--platform'
       - 'managed'
-      # Optional: if you want to allow unauthenticated access
       - '--allow-unauthenticated'
-  # # Paso 3: Ejecutar el script de despliegue
-  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  #   entrypoint: 'bash'
-  #   args:
-  #     - 'deploy.sh'
-  #   id: 'Deploy to GCE'
-  #   waitFor: ['Push Docker Image']
+      # Optional: if you want to allow unauthenticated access
 
 # Opcional: Configuración de tiempo de espera y opciones de construcción
 timeout: '1200s'
